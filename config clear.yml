@@ -1,0 +1,18 @@
+groups:
+  group_id:INT::
+    channels:
+    - -channelid:INT
+    - -channelid1:INT
+    last_post: Last_Post:INT
+  group_id_1:INT::
+    channels:
+    - -channelid:INT
+    - -channelid1:INT
+    last_post: Last_Post:INT
+vk:
+  login:
+  password: 
+tg_bot: 
+tgph:
+  name: vk2tg_kaiyga
+  token:

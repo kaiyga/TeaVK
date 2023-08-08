@@ -1,0 +1,6 @@
+vk_api
+telegraph
+PyYAML
+pyTelegramBotAPI
+wget
+yt-dlp

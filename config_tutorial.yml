@@ -1,0 +1,56 @@
+
+#Change config-name "config.yml. Run main.py"
+#Im overwrite config file. Auto updated data about last post.
+#All comments will be removed. Remember It. And copy example on case of trouble
+
+#Замени название конфига на "config.yml. Запускай main.py"
+#Я перезаписываю конфиг, обновляя данные, о последних постах
+#Все комментарии будут удалены, помни это. Скопируй пример на случай возникновения проблем 
+
+
+#What GroupID https://vk.com/wall-152642241_52503: GroupID 152642241 PostID: 52503
+
+# Auto Approve Request in Closed Public. Write all GroupID or write []
+# Автоматические принятие заявок в закрытый паблик. Запиши все GroupID или оставь []
+group_ids: [group_id, group_id1]
+
+# LastPost. Writing how GroupID: PostID (Dont forget about tabulations!)
+# Последний пост. Записывается, как GroupID: PostID (Не забывай, о табуляции!)
+
+# Connections VK Public and Telegram Channel. Writing how GroupID: ChannelID
+# Соединения VK Паблика и Телеграмм канала. Записываются, как GroupID: ChannelID
+# GetChannel ID: https://t.me/getidsbot
+
+groups:
+  group_id:INT::
+    channels:
+    - -channelid:INT
+    - -channelid1:INT
+    last_post: Last_Post:INT
+  group_id1:INT::
+    channels:
+    - -channelid:INT
+    - -channelid1:INT
+    last_post: Last_Post:INT
+
+#Your VK Authetications data. It himself acsess_token
+#Твои аунтификационные данные VK. Он сам получит acsess_token
+login: login
+password: password
+
+
+# TG Bot token. 
+# https://t.me/BotFather
+tg_bot: bot_token
+
+# Dont forget add your bot to your channel and get him permissions
+# Не забудь пригласить своего бота в свой канал и дать ему права 
+
+# Telegraph for long-posting. 
+# Token is obtained automatically. And saved. Don't worry
+
+# Telegraph для Длинно-Постов
+# Токен получается автоматически и сохраняется здесь. Не беспокойсся. 
+tgph:
+  name: vk2tg_kaiyga
+  token: ""
