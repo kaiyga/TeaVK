@@ -3,4 +3,4 @@ telegraph
 PyYAML
 pyTelegramBotAPI
 wget
-yt-dlp
+yt_dlp
