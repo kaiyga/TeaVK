@@ -1,5 +1,5 @@
 <h1>TEA<a href="vk.com">VK</a> - VK to Telegram post retranslate</h1>
-
+<img src="./photos/banner.png"></img>
 <h2>Авто-пост публикаций из VK в ТГ</h2>
 <h2>Из фишек</h2>
 <p>
