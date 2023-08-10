@@ -33,15 +33,16 @@ class Config():
     Инициализация Конфига
     """
     def __init__(self, config_name="config.yml") -> None:
-        self.config = Config.load_conf(config_name)
-        self.login = self.config['vk']["login"]
-        self.password = self.config['vk']["password"]
-        self.tgph_name = self.config["tgph"]["name"]
-        self.tgph_token = self.config["tgph"]["token"]
-        self.tg_bot = self.config["tg_bot"]
-        self.group_ids = self.config["group_ids"]
-        self.obj_groups = self.config['groups']
-        self.group_instances = {}
+        self.config:dict = Config.load_conf(config_name)
+        self.login:str = self.config['vk']["login"]
+        self.password:str = self.config['vk']["password"]
+        self.tgph_name:str = self.config["tgph"]["name"]
+        self.tgph_token:str = self.config["tgph"]["token"]
+        self.tg_bot:str = self.config["tg_bot"]
+        self.badword:dict = self.config["badword"]
+        self.group_ids:list = self.config["group_ids"]
+        self.obj_groups:object = self.config['groups']
+        self.group_instances:dict = {}
         for group in self.obj_groups:
             self.group_instances[group] = self.Group(self.config, group)
 
@@ -211,7 +212,14 @@ class TGHP():
                 return resp
             return short_text
         return short_text
-
+    
+def badword_clear(text:str):
+    config=Config()
+    print(config.badword)
+    for word in config.badword:
+        replace_word = config.badword[word]
+        text= text.replace(word, replace_word)
+    return text
 
 def TgRepost(tg:TeleBot, vk:vk_api.VkApi.get_api, tgph:Telegraph, links:dict):
     def tg_photo(post, text):
@@ -231,7 +239,7 @@ def TgRepost(tg:TeleBot, vk:vk_api.VkApi.get_api, tgph:Telegraph, links:dict):
             posts_list = VkReq.wall_get(vk=vk, group_id=group)
             if posts_list != []:
                 for post in posts_list:
-                    text = post['text']; media=tg_photo(post=post, text=text); id=post['id']
+                    text = badword_clear(post['text']); media=tg_photo(post=post, text=text); id=post['id']
                     print("Post ",id,":\n", text)
                     if len(text) > 1000:
                         text_short=TGHP.cut_text(text)
@@ -252,6 +260,4 @@ def TgRepost(tg:TeleBot, vk:vk_api.VkApi.get_api, tgph:Telegraph, links:dict):
                     Config.Group.mark_lastpost(group, id); sleep(10)
                     
             else:
-                print("No new posts in ", VkReq.public_name(vk=vk, group_id=group), "| 🐸 Kwa")
-
-            
+                print("No new posts in ", VkReq.public_name(vk=vk, group_id=group), "| 🐸 Kwa")     

@@ -16,3 +16,7 @@ tg_bot:
 tgph:
   name: vk2tg_kaiyga
   token:
+
+badword:
+"@tag_pub": ""
+"@tag_2pub": ""
