@@ -3,7 +3,6 @@ import vk_api
 import os
 import wget
 import yaml
-import yt_dlp
 from yaml.loader import SafeLoader
 from telegraph import Telegraph
 from time import sleep
@@ -118,10 +117,22 @@ class VkReq():
 
 
     def auth(login, password):
-        vk_sessions = vk_api.VkApi(login=login, password=password, captcha_handler=VkReq.captcha_handler, app_id=6121396)
+        vk_sessions = vk_api.VkApi(login=login, password=password, captcha_handler=VkReq.captcha_handler, app_id=6121396, auth_handler=VkReq.auth_handler)
         vk_sessions.auth()
         VK = vk_sessions.get_api()
         return VK
+
+
+    def auth_handler():
+        """ При двухфакторной аутентификации вызывается эта функция.
+        """
+
+        # Код двухфакторной аутентификации
+        key = input("Enter authentication code: ")
+        # Если: True - сохранить, False - не сохранять.
+        remember_device = True
+
+        return key, remember_device
 
     def captcha_handler(captcha):
         key = input("Enter captcha code {0}: ".format(captcha.get_url())).strip()
