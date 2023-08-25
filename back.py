@@ -12,6 +12,14 @@ from time import sleep
 from telebot import TeleBot 
 from telebot.types import InputMediaPhoto
 
+def log_error(error_message):
+    try:
+        with open('error.txt', 'a') as file:
+            file.write(str(error_message) + '\n')
+    except FileNotFoundError:
+        with open('error.txt', 'w') as file:
+            file.write(str(error_message) + '\n')
+
 class Config:
     def __init__(self, config_file="config.yml") -> None:
         self.config_file = str(config_file)
