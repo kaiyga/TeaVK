@@ -174,6 +174,10 @@ class Bridge:
             """
             #Запрос в ВК
             resp = self.vk_.wall.get(owner_id=group_id, count=15)['items']
+            with open('resp.json', "w") as f:
+                import json
+                json.dump(resp, f)
+                
             group_name=self.public_name(group_id=group_id)
             print("Get Wall from ", group_name)
         
@@ -250,22 +254,24 @@ class GroupPosts():
             if self.vkposts != []:
                 for post in self.vkposts:
                     text=self.badword_clear(post['text']); media=self.tg_photo(post, text); id=post['id']
-                    if len(text) > 1000:
-                        short_text = self.cut_text(text)
-                        if short_text == "NOT CUT":
-                            short_text=""
-                        print("Text in post is too long. Posting in telegraph /.__./")
-                        page_tghp=self.tgph.telegraph_page(post=post)
-                        text_short = str(text_short) + "\n" + str(page_tghp)
-                        print(text_short)
-                        self.tg.send_message(chat_id=channel, text=text_short)
-                    else:
-                        if media !=[]:
-                            print("tg.send_media ", channel)
-                            self.tg.send_media_group(chat_id=channel, media=media)
+                    print(f"https://vk.com/wall{self.group.group_id}_{id}",)
+                    if not (text == "" and media == []):
+                        if len(text) > 1000:
+                            short_text = self.cut_text(text)
+                            if short_text == "NOT CUT":
+                                short_text=""
+                            print("Text in post is too long. Posting in telegraph /.__./")
+                            page_tghp=self.tgph.telegraph_page(post=post)
+                            text_short = str(text_short) + "\n" + str(page_tghp)
+                            print(text_short)
+                            self.tg.send_message(chat_id=channel, text=text_short)
                         else:
-                            print("tg.send_message ", channel)
-                            self.tg.send_message(chat_id=channel, text=text)
+                            if media !=[]:
+                                print("tg.send_media ", channel)
+                                self.tg.send_media_group(chat_id=channel, media=media)
+                            else:
+                                print("tg.send_message ", channel)
+                                self.tg.send_message(chat_id=channel, text=text)
                     self.config.mark_lastpost(self.group.group_id, id); sleep(10)
 
 
