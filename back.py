@@ -24,7 +24,7 @@ class Config:
     def __init__(self, config_file="config.yml") -> None:
         self.config_file = str(config_file)
         self.config:dict = Config.load_config(self.config_file)
-        self.tghp = self.TGHP(self.config['tgph'])
+        self.initTGHP()
         self.tg = self.config['tg_bot']
         self.vk = self.VK(self.config['vk'])
         self.badword = self.config['badword']
@@ -54,6 +54,15 @@ class Config:
             self.token = tghp_dict['token']
             self.name = tghp_dict['name']
                 
+    def initTGHP(self):
+        self.tghp = self.TGHP(self.config['tgph'])  
+        if self.config['tgph']['token'] == None or self.config['tgph']['token'] == "":
+            print("Auth in Telegraph:")
+            TGPH = Telegraph()
+            tgph_resp = TGPH.create_account(short_name=self.tghp.name)
+            self.tghp.token = tgph_resp["access_token"]
+            self.config['tgph']['token'] = self.tghp.token
+            self.dumb_config(self.config)       
 
     def reload_config(self):
         self.__init__(self.config_file)
@@ -90,7 +99,7 @@ class Bridge:
 
     class TGPH:
         def __init__(self, tghp_config:Config.TGHP) -> None:
-            if tghp_config != "":
+            if tghp_config != None:
                 self.tgph_ = Telegraph(tghp_config.token) 
             else:
                 print("Auth in Telegraph:")
@@ -102,8 +111,10 @@ class Bridge:
                 self.update_tgph_token(tghp_config.token)
 
         def update_tgph_token(config, token):
-            tghp_config = Config.load_config()['tgph']
-            tghp_config['token']= token
+            tghp_config = Config.load_config()
+            tghp_config['tgph']['token']= token
+            Config.dumb_config(tghp_config)
+
 
         def telegraph_page(self, post) -> str:
             """
