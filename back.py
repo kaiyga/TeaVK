@@ -149,11 +149,7 @@ class Bridge:
             print("Success! Rest is easy^^")
             self.vk_ = vk_sessions.get_api()
 
-
-
-
-
-        def auth_handler():
+        def auth_handler(self):
             """ При двухфакторной аутентификации вызывается эта функция.
             """
 
