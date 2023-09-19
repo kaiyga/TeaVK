@@ -57,4 +57,4 @@ tgph:
 ```
 
 <h1>Установка, запуск</h1>
-[Я написал, обо всём в вики^^](https://github.com/kaiyga/TeaVK/wiki)
+![Я написал, обо всём в вики^^](https://github.com/kaiyga/TeaVK/wiki)
