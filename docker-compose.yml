@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  teavk:
+    build : 
+      context: ./
+      dockerfile: Dockerfile
+    container_name: teavk
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    volumes:
+      - ./config.yml:/home/teavk/config.yml

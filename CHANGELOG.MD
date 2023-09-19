@@ -28,4 +28,8 @@ TeaVK [0.2.2] text and media is None FIX
 Теперь при имении текста или медиа (Пока только фотографий)
 Проверка проходит
 
-TeaVK [0.2.3] BAG FIX : ACCESS_TOKEN_INVALID
+TeaVK [0.2.3] BAG FIX : ACCESS_TOKEN_INVALID, auth_handler() takes 0 positional arguments
+
+Исправлена проблема проверки и использования токена Telegraph
+
+Исправлена проблема связанная с тем, что в auth_handler() передавался объект self
