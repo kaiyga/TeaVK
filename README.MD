@@ -57,13 +57,4 @@ tgph:
 ```
 
 <h1>Установка, запуск</h1>
-<h3>Надеюсь у вас есть Python 3.10 и выше</h3>
-
-```bash
-pip install -r requirements.txt 
-```
-<h3>Start</h3>
-
-```bash
-python main.py 
-```
+[Я написал, обо всём в вики^^](https://github.com/kaiyga/TeaVK/wiki)
