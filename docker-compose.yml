@@ -11,3 +11,4 @@ services:
       - USER_GID=1000
     volumes:
       - ./config.yml:/home/teavk/config.yml
+    restart: unless-stopped
