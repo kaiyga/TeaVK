@@ -6,5 +6,4 @@ RUN cd /home/teavk && \
 pip install -r requirements.txt
 
 WORKDIR /home/teavk
-RUN cat config.yml
 CMD [ "python", "main.py" ]
