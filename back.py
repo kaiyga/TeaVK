@@ -5,12 +5,13 @@
 #Рефакторинг зашёл далеко и я всё-же переписал всё на классах (Первые версии кода, были лишь робкой попыткой). Ибо так, мне кажется красивше:p
 import vk_api
 import os
-import wget
 import yaml
 from telegraph import Telegraph
 from time import sleep
 from telebot import TeleBot 
 from telebot.types import InputMediaPhoto
+import requests
+
 
 def log_error(error_message):
     try:
@@ -31,7 +32,7 @@ class Config:
         self.groups = {}
         for group in list(self.config['groups'].keys()):
             print("Fonded Group:", group)
-            self.groups[group]:self.Group = self.Group(group_id=group, group_dict=self.config['groups'][group])
+            self.groups[group]= self.Group(group_id=group, group_dict=self.config['groups'][group])
     class Group:
         def __init__(self, group_id, group_dict) -> None:
             self.group_id:int = int(group_id)
@@ -153,9 +154,7 @@ class Bridge:
             """ При двухфакторной аутентификации вызывается эта функция.
             """
 
-            # Код двухфакторной аутентификации
             key = input("2FA REQUARED! Enter authentication code: ")
-            # Если: True - сохранить, False - не сохранять.
             remember_device = True
 
             return key, remember_device
@@ -304,23 +303,14 @@ class GroupPosts():
         media=[]; r=1
         for photo_url in post['photos']:
             filename=f"photos/{r}.png"
-            photo = self.photo_download(photo_url, filename)
+            s = requests.get(photo_url, allow_redirects=True)
             if r == 1:
-                media.append((InputMediaPhoto(photo, text)))
+                media.append((InputMediaPhoto(s.content, text)))
             else:
-                media.append((InputMediaPhoto(photo)))
+                media.append((InputMediaPhoto(s.content)))
             r=r+1
         return media
-    
-    def photo_download(self, url, filename):
-        try:
-            filename= wget.download(url, filename)
-            with open(filename, 'rb') as photo:
-                photo = photo.read()
-                return photo
-        except Exception as e:
-            print(e)
-            os.system('mkdir ./photos')
+        
 
 
 

@@ -1,2 +1,7 @@
+config.yml
+resp.json
+vk_config.v2.json
+error.txt
+venv/
+vscode
 
-.vscode/
