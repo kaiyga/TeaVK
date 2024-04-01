@@ -215,8 +215,11 @@ class Bridge:
                     if attachments['type'] == attach_type:
                         match attach_type:
                             case "photo":
-                                photo=attachments['photo']['sizes'][-1]['url']
-                                attach.append(photo)
+                                def get_size(att):
+                                    return att['height'] + att['width']
+                                atts = sorted(attachments['photo']['sizes'], key=get_size)#[-1]['url']
+                                attach.append(atts[-1]['url'])
+
                             case "video":
                                 owner_id=attachments['video']['owner_id']
                                 video_id=attachments['video']['id']
@@ -268,9 +271,9 @@ class GroupPosts():
                                 short_text=""
                             print("Text in post is too long. Posting in telegraph /.__./")
                             page_tghp=self.tgph.telegraph_page(post=post)
-                            text_short = str(text_short) + "\n" + str(page_tghp)
-                            print(text_short)
-                            self.tg.send_message(chat_id=channel, text=text_short)
+                            final_text = str(short_text) + "\n" + str(page_tghp)
+                            print(final_text)
+                            self.tg.send_message(chat_id=channel, text=final_text)
                         else:
                             if media !=[]:
                                 print("tg.send_media ", channel)
