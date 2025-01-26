@@ -1,5 +1,6 @@
 import vk_api
 import os
+import re
 import yaml
 from telegraph import Telegraph
 from time import sleep
@@ -7,6 +8,7 @@ from telebot import TeleBot
 from telebot.types import InputMediaPhoto
 import requests
 
+RATE_LIMIT_SEC = 10
 
 def log_error(error_message):
     try:
@@ -63,7 +65,7 @@ class Post():
         self.photos:list[str] = photos
         
         self.skip = False
-        self.clear_text = self.badword_clear(text)
+        self.clear_text = ""
         
     def cut_text(self):
         lines = self.text.split("\n")
@@ -85,26 +87,104 @@ class Post():
                     
         return short_text
 
-    def badword_clear(self, text:str):
-        for word in self.badword:
-            replace_word = self.badword[word]
-            text= text.replace(word, replace_word)
-        return text
+    def badword_clear(self, badwords:dict):
+        for word in badwords:
+            replace_word = badwords[word]
+            text = self.text.replace(word, replace_word)
+        self.clear_text = text
 
     def redflag(self, redflags:dict[str]):
-        for word in self.text.split(" "):
-            if word.lower() in map(str.lower, redflags):
+        words = re.findall(r'\b\w+\b', self.text.lower()) 
+        for word in words:
+            if word in redflags:
                 self.skip = True
-                return
+                return        
+        
+
+class Bridge():
+    def __init__(self, config_file):
+        cf = BridgeConfig(config_file)
+        self.config = cf
+        
+        redflags = []
+
+        try:
+            redflags = cf.config['redflags']
+        except KeyError:
+            pass
+        
+        self.redflags = map(str.lower, redflags)
+        
+        self.vk = VKClient(**cf.config.get('vk'))
+        
+        self.tg = TeleBot(cf.config.get('tg_bot')) 
+        
+        if not cf.config.get("tgph").get("token"):
+            tgphT = TGPHClient.get_token(cf.config.get("tgph").get("name"))
+            cf.config['tgph']['token'] = tgphT
+            cf.dumb(cf.config)
+        else:
+            tgphT = cf.config.get("tgph").get("token")
+            
+        self.tgph = TGPHClient(tgphT)
+        
+    def repost_task(self):
+        groups = self.config.config['groups']
+        
+        for group in list(groups.keys()):
+            if not groups[group]['last_post']:
+                last_post = 0
+                self.config.config['groups'][group]['last_post'] = last_post
+                self.config.dumb(self.config.config)
+            else:
+                last_post = self.config.config['groups'][group]['last_post']
+                
+            posts = self.vk.wall_get(group, last_post)
+            
+            for post in posts:
+                post.redflag(self.redflags)
+                post.badword_clear(self.config.config['badword'])
+                for channel_id in groups[group]['channels']:
+                    self._repost(channel_id, post)
+                
+    
+    def _repost(self, channel_id, post:Post):
+        
+        if post.skip:
+            return
+        
+        print(f"https://vk.com/wall{post.group_id}_{post.id}")
+        
+        media = []
+        for i, photo in enumerate(post.photos, 0):
+            s = requests.get(photo, allow_redirects=True)
+            if i != 0:
+                media.append(InputMediaPhoto(s.content))
+            else:
+                media.append(InputMediaPhoto(s.content, post.clear_text))
+     
+        if post.text or media != []:
+            if len(post.text) > 1000:
+                tghp_page = self.tgph.telegraph_page(post)
+                text = str(post.cut_text()) + "\n" + str(tghp_page)
+                self.tg.send_message(chat_id=channel_id, text=post.clear_text)
+            else:
+                if media != []:
+                    print("TG Send media", channel_id)
+                    self.tg.send_media_group(chat_id=channel_id, media=media)
+                else:
+                    print("TG Send text")
+                    self.tg.send_message(channel_id, text=post.clear_text)
+                    
+        self.config.mark_lastpost(post.group_id, post.id); sleep(RATE_LIMIT_SEC)
 
 class VKClient():
     def __init__(self, login="", password="", token=""):
-        if login and password:
-            vk_sessions = vk_api.VkApi(login=login, password=password, captcha_handler=self.captcha_handler, app_id=6121396, auth_handler=self.auth_handler)
-            vk_sessions.auth()
-            self.vk_client = vk_sessions.get_api()
-        elif token:
+        if token:
             vk_sessions = vk_api.VkApi(token=token)
+            self.vk_client = vk_sessions.get_api()
+        elif login and password:
+            vk_sessions = vk_api.VkApi(login=login, password=password, captcha_handler=self.captcha_handler, app_id=6121396, auth_handler=self.auth_handler)
             vk_sessions.auth()
             self.vk_client = vk_sessions.get_api()
         else:
@@ -217,68 +297,6 @@ class TGPHClient():
         
         for photo in photos:
             page.append(photo)
-        response = self.tgph_.create_page(title=title, author_url=f"https://vk.com/{post.group}", content=page)
+        response = self.tgph.create_page(title=title, author_url=f"https://vk.com/{post.group}", content=page)
         return response['url']
         
-class Bridge():
-    def __init__(self, config_file):
-        cf = BridgeConfig(config_file)
-        self.config = cf
-        
-        # print(**cf.config['vk'])
-        self.vk = VKClient(**cf.config['vk'])
-        
-        self.tg = TeleBot(cf.config['tg_bot']) 
-        
-        if not cf.config['tgph']['token']:
-            tgphT = TGPHClient.get_token(cf.config['tgph']['name'])
-            cf.config['tgph']['token'] = tgphT
-            cf.dumb(cf.config)
-        else:
-            tgphT = cf.config['tgph']['token']
-            
-        self.tgph = TGPHClient(tgphT)
-        
-    def reposts_task(self):
-        groups = self.config.config['groups']
-        
-        for group in list(groups.keys()):
-            if not groups[group]['last_post']:
-                last_post = 0
-                self.config.config['groups'][group]['last_post'] = last_post
-                self.config.dumb(self.config.config)
-            else:
-                last_post = self.config.config['groups'][group]['last_post']
-                
-            posts = self.vk.wall_get(group, last_post)
-            for channel_id in groups[group]['channels']: 
-                for post in posts:
-                    self._repost(channel_id, post)
-                
-    
-    def _repost(self, channel_id, post:Post):
-        print(f"https://vk.com/wall{post.group_id}_{post.id}")
-        
-        media = []
-        for i, photo in enumerate(post.photos, 0):
-            s = requests.get(photo, allow_redirects=True)
-            if i != 0:
-                media.append(InputMediaPhoto(s.content))
-            else:
-                media.append(InputMediaPhoto(s.content, post.text))
-        
-        
-        if post.text or media != []:
-            if len(post.text) > 1000:
-                tghp_page = self.tgph.telegraph_page(post)
-                text = str(post.cut_text()) + "\n" + str(tghp_page)
-                self.tg.send_message(chat_id=channel_id, text=text)
-            else:
-                if media != []:
-                    print("TG Send media", channel_id)
-                    self.tg.send_media_group(chat_id=channel_id, media=media)
-                else:
-                    print("TG Send text")
-                    self.tg.send_message(channel_id, text=text)
-                    
-        self.config.mark_lastpost(post.group_id, post.id); sleep(5)

@@ -3,5 +3,6 @@ resp.json
 vk_config.v2.json
 error.txt
 venv/
+__pycache__/
 vscode
 

@@ -13,7 +13,10 @@ groups:
 vk:
   login:
   password: 
+  token:
+
 tg_bot: 
+
 tgph:
   name: vk2tg_kaiyga
   token:

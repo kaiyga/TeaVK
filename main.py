@@ -5,13 +5,12 @@
 from newback import *
 from time import sleep
 print("Load Config... ")
-config = Config('config.yml')
 print("Login in services...")
-bridge = Bridge(config)
+bridge = Bridge("config.yml")
 
 while True:
     try:
-        bridge.repost_task(config)
+        bridge.repost_task()
         sleep(1200)
     except Exception as e:     
         print(e)   
