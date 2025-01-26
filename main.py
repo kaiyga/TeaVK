@@ -2,7 +2,7 @@
 # |By Gulyshalkash (GIT: kaiyga)|
 # |#############################|
 
-from back import *
+from newback import *
 from time import sleep
 print("Load Config... ")
 config = Config('config.yml')

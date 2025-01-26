@@ -11,6 +11,7 @@ from time import sleep
 from telebot import TeleBot 
 from telebot.types import InputMediaPhoto
 import requests
+from urllib.parse import urlparse, parse_qs
 
 
 def log_error(error_message):

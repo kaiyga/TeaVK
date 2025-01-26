@@ -1,5 +1,5 @@
-vk_api
+git+https://github.com/python273/vk_api
 telegraph
 PyYAML
 pyTelegramBotAPI
-yt_dlp
+
